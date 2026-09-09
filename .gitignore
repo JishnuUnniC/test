@@ -1,3 +1,5 @@
 .venv/
 __pycache__/
-data/
+data/processed
+reports/*.json
+models/*.joblib

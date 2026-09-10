@@ -23,8 +23,11 @@ def main(batch_path):
     print("BATCH APPROVED AND PROMOTED:", RAW_DATA)
 
     # Industry pattern: ingestion success triggers downstream pipeline automatically.
-    subprocess.run([sys.executable, "src/preprocess.py"], check=True)
-    subprocess.run([sys.executable, "src/train.py"], check=True)
+    subprocess.run(["dvc", "repro"], check=True)
+    print("Pipeline reproduction complete")
+    # the following tasks are being executed using yaml script now.
+    # subprocess.run([sys.executable, "src/preprocess.py"], check=True)
+    # subprocess.run([sys.executable, "src/train.py"], check=True)
 
 if __name__ == "__main__":
     main(sys.argv[1])

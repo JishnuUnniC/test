@@ -5,8 +5,8 @@ stages:
     deps:
     - path: data/raw/iris.csv
       hash: md5
-      md5: 502e077ae4b2592b866544c212716375
-      size: 452
+      md5: 058bfdff9989c426f6e378572db824ff
+      size: 2786
     - path: src/config.py
       hash: md5
       md5: 96bcecb01a1abe0ff0b621271afb602f
@@ -18,37 +18,37 @@ stages:
     outs:
     - path: data/processed/test.csv
       hash: md5
-      md5: 8085cd9f1c7182010be2b04f366a7101
-      size: 161
+      md5: f62eb59ab49d79c725d3982a6309f855
+      size: 648
     - path: data/processed/train.csv
       hash: md5
-      md5: a7aad40e3936f130402a43890256b5ee
-      size: 369
+      md5: 2471b196482f8756104a193f2497d1e5
+      size: 2358
   train:
     cmd: python src/train.py
     deps:
     - path: data/processed/test.csv
       hash: md5
-      md5: 8085cd9f1c7182010be2b04f366a7101
-      size: 161
+      md5: f62eb59ab49d79c725d3982a6309f855
+      size: 648
     - path: data/processed/train.csv
       hash: md5
-      md5: a7aad40e3936f130402a43890256b5ee
-      size: 369
+      md5: 2471b196482f8756104a193f2497d1e5
+      size: 2358
     - path: src/config.py
       hash: md5
       md5: 96bcecb01a1abe0ff0b621271afb602f
       size: 414
     - path: src/train.py
       hash: md5
-      md5: 8c6c24b4cc793724623276cc93fed7b1
-      size: 2092
+      md5: 6e88144a434e9d23efb54343022fd401
+      size: 2140
     outs:
     - path: models/iris_random_forest.joblib
       hash: md5
-      md5: 8e8f66ffb0002be3827ea06ad86a9b3d
-      size: 98353
+      md5: 668c627b26caac62f8592ba6a5acbdb9
+      size: 163473
     - path: reports/metrics.json
       hash: md5
-      md5: d0e2412a648fad5865b08e41081ebc94
-      size: 26
+      md5: 6e67fbe4a71b128434d9d687b50bc529
+      size: 40

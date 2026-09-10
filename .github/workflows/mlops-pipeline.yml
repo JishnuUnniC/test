@@ -1,0 +1,60 @@
+name: MLOps Pipeline
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/incoming/**"
+      - "src/**"
+      - "dvc.yaml"
+  workflow_dispatch:
+
+jobs:
+  ml-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Find new incoming CSV
+        id: batch
+        run: |
+          FILE=$(git diff --name-only HEAD^ HEAD \
+            | grep '^data/incoming/.*\.csv$' \
+            | head -n 1)
+
+          echo "batch_file=$FILE" >> "$GITHUB_OUTPUT"
+          echo "Detected batch: $FILE"
+
+      - name: Run ingestion pipeline
+        if: steps.batch.outputs.batch_file != ''
+        run: |
+          python src/ingest_batch.py \
+          "${{ steps.batch.outputs.batch_file }}"
+
+      - name: Model quality gate
+        if: steps.batch.outputs.batch_file != ''
+        run: |
+          python src/check_performance.py
+
+      - name: Upload model and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-pipeline-results
+          path: |
+            models/
+            reports/
+            mlruns/

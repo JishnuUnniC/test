@@ -93,4 +93,67 @@ http://127.0.0.1:5000  # UI
 <!-- understand MLflow UI -->
 <!-- update the yaml file with the metrics. -->
 
+# Performance evaluation
+<!-- created check_performance.py and check for performance of the model-->
 
+python src/check_performance.py
+
+
+# GitHub Actions
+
+<!-- add github workflow as .yml file -->
+
+New CSV pushed
+      ↓
+GitHub detects:
+data/incoming/**
+      ↓
+workflow starts
+      ↓
+checkout
+      ↓
+install
+      ↓
+identify CSV
+      ↓
+ingest_batch.py
+
+<!-- Existing code does the following -->
+validate
+   ↓
+approved
+   ↓
+raw/iris.csv
+   ↓
+dvc repro
+
+<!-- DVC takes care of  -->
+raw data changed
+     ↓
+preprocess invalidated
+     ↓
+run preprocess
+     ↓
+processed data changed
+     ↓
+train invalidated
+     ↓
+run train
+
+<!-- train.py does -->
+train
+  ↓
+accuracy
+  ↓
+MLflow
+  ↓
+metrics.json
+  ↓
+model
+
+<!-- final comparison -->
+check_performance.py
+       ↓
+accuracy >= 0.90?
+       ↓
+      PASS

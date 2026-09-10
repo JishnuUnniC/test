@@ -45,7 +45,7 @@ new approved data
 
 Local trigger:
 ```bash
-python src/promote_and_reproduce.py data/incoming/iris_v2.csv
+python src/ingest_batch.py data/incoming/iris_v2.csv
 ```
 
 CI trigger:

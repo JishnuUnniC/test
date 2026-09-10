@@ -41,10 +41,14 @@ stages:
       size: 414
     - path: src/train.py
       hash: md5
-      md5: db6a4e5cf69e372ba465c01af8ec81a5
-      size: 754
+      md5: 8c6c24b4cc793724623276cc93fed7b1
+      size: 2092
     outs:
     - path: models/iris_random_forest.joblib
       hash: md5
       md5: 8e8f66ffb0002be3827ea06ad86a9b3d
       size: 98353
+    - path: reports/metrics.json
+      hash: md5
+      md5: d0e2412a648fad5865b08e41081ebc94
+      size: 26

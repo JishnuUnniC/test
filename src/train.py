@@ -58,8 +58,7 @@ def main():
         # Save metric for DVC / CI
         # -------------------------
 
-        import os
-        os.makedirs(REPORTS_DIR,exist_ok=True)
+        REPORTS_DIR.mkdir(parents= True,exist_ok=True)
 
         with open(REPORTS_DIR/"metrics.json","w") as f:
             json.dump(

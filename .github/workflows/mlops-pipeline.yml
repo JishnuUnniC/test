@@ -1,55 +1,110 @@
 name: MLOps Pipeline
+
 on:
   push:
     branches:
       - main
     paths:
       - "data/incoming/**"
-      - "src/**"
-      - "dvc.yaml"
+
   workflow_dispatch:
 
 jobs:
   ml-pipeline:
     runs-on: ubuntu-latest
     steps:
+      # --------------------------------
+      # 1. Get repository
+      # --------------------------------
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
+
+      # --------------------------------
+      # 2. Python environment
+      # --------------------------------
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # --------------------------------
+      # 3. Dependencies
+      # --------------------------------
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Find new incoming CSV
+      # --------------------------------
+      # 4. Find incoming data
+      # --------------------------------
+
+      - name: Find incoming CSV
         id: batch
+        shell: bash
         run: |
-          FILE=$(git diff --name-only HEAD^ HEAD \
-            | grep '^data/incoming/.*\.csv$' \
-            | head -n 1)
-
-          echo "batch_file=$FILE" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            FILE=$(find data/incoming \
+              -type f \
+              -name "*.csv" \
+              | head -n 1)
+          else
+            FILE=$(git diff \
+              --name-only \
+              HEAD^ HEAD \
+              | grep '^data/incoming/.*\.csv$' \
+              | head -n 1 || true)
+          fi
           echo "Detected batch: $FILE"
+          echo "batch_file=$FILE" \
+            >> "$GITHUB_OUTPUT"
 
-      - name: Run ingestion pipeline
-        if: steps.batch.outputs.batch_file != ''
+      # --------------------------------
+      # 5. Make sure data exists
+      # --------------------------------
+
+      - name: Verify incoming batch
+        run: |
+          if [ -z "${{ steps.batch.outputs.batch_file }}" ]; then
+            echo "No incoming CSV found"
+            exit 1
+          fi
+
+      # --------------------------------
+      # 6. Ingestion + DVC
+      # --------------------------------
+
+      - name: Run ingestion and DVC pipeline
         run: |
           python src/ingest_batch.py \
-          "${{ steps.batch.outputs.batch_file }}"
+            "${{ steps.batch.outputs.batch_file }}"
+
+      # --------------------------------
+      # 7. Quality gate
+      # --------------------------------
 
       - name: Model quality gate
-        if: steps.batch.outputs.batch_file != ''
         run: |
           python src/check_performance.py
 
-      - name: Upload model and metrics
+      # --------------------------------
+      # 8. Show DVC metrics
+      # --------------------------------
+
+      - name: Show model metrics
+        run: |
+          dvc metrics show
+
+      # --------------------------------
+      # 9. Persist demo artifacts
+      # --------------------------------
+
+      - name: Upload pipeline artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
